@@ -1,0 +1,62 @@
+[
+  {
+    "title": "RBI Alert: Fake KYC Update Messages",
+    "fraud_type": "FAKE_KYC",
+    "content": "RBI has warned that fraudsters are sending fake SMS and emails asking customers to update their KYC details by clicking on links. Banks never ask customers to share personal details like OTP, PIN, or passwords through SMS or email. If you receive such a message, do not click on any link. Report it to your bank immediately. The Reserve Bank of India has clarified that KYC updates are done only through official bank branches or verified digital banking platforms, never through third-party links.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Warning: UPI Fraud and Collect Request Scams",
+    "fraud_type": "UPI_MANIPULATION",
+    "content": "RBI has issued warnings about increasing UPI fraud where scammers send collect requests instead of payment requests. Victims receive a UPI collect request and are tricked into approving it thinking they will receive money. Remember: you never need to enter your UPI PIN to receive money. If someone asks you to enter your PIN to receive money, it is a scam. Always verify the sender before approving any UPI collect request. Fraudsters often pose as buyers on OLX, Quikr, and other classified platforms.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Advisory: Phishing Websites Impersonating Banks",
+    "fraud_type": "PHISHING",
+    "content": "The Reserve Bank of India has warned about phishing websites that look identical to official bank websites. These fake websites are designed to steal your login credentials, card details, and OTPs. Always check the URL carefully — legitimate bank websites use HTTPS and have official domain names. Never access your bank account through links sent via SMS, email, or social media. Always type the bank URL directly in your browser. Report suspicious websites to the Cyber Crime portal at cybercrime.gov.in.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Alert: Loan Fraud and Fake Lending Apps",
+    "fraud_type": "INVESTMENT_SCAM",
+    "content": "RBI has warned about unauthorized digital lending apps that offer instant loans with minimal documentation. These apps often charge exorbitant interest rates, access personal data from your phone, and use abusive recovery practices. Only borrow from RBI-registered NBFCs and banks. Check the RBI website for a list of authorized lenders. If an app asks for access to your contacts, gallery, or messages, it is likely fraudulent. Report such apps to the RBI Sachet portal.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Warning: OTP and Card Detail Theft",
+    "fraud_type": "OTP_FRAUD",
+    "content": "RBI has repeatedly warned that no bank representative, RBI official, or government authority will ever ask for your OTP, CVV, PIN, or full card number over the phone. Scammers impersonate bank officials, claiming there is an issue with your account and urgently need your OTP to resolve it. This is always a scam. If someone calls asking for your OTP, hang up immediately and call your bank's official helpline. Enable transaction alerts on your phone to monitor unauthorized transactions.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Advisory: Fake Investment and Ponzi Schemes",
+    "fraud_type": "INVESTMENT_SCAM",
+    "content": "The Reserve Bank of India warns against investment schemes that promise guaranteed high returns with zero risk. No legitimate investment can guarantee returns. Common scam patterns include: crypto investment groups on Telegram promising 200-500% returns, fake IPO allotments, WhatsApp stock tip groups requiring advance payment, and chain marketing schemes disguised as investments. Always verify with SEBI before investing. If returns seem too good to be true, they are.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Alert: Fake RBI Officials Calling Citizens",
+    "fraud_type": "FAKE_KYC",
+    "content": "Fraudsters are making phone calls impersonating RBI officials, threatening account freezing or legal action. RBI has clarified that it does not make phone calls to individuals about their bank accounts. RBI does not ask for personal information over the phone. If you receive such a call, do not share any details. Note the phone number and report it to cybercrime.gov.in. The official RBI helpline is 14440.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Warning: QR Code Payment Scams",
+    "fraud_type": "UPI_MANIPULATION",
+    "content": "RBI has warned about scams where fraudsters send QR codes claiming the victim will receive money upon scanning. Scanning a QR code is always for PAYING money, never for receiving. If someone sends you a QR code and asks you to scan it to receive a refund, cashback, or prize, it is a scam. Legitimate payments are received directly through UPI ID or bank transfer without scanning any QR code.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Advisory: Credit Card Reward Point Scams",
+    "fraud_type": "CARD_SCAM",
+    "content": "Fraudsters call credit card holders claiming their reward points are about to expire and must be redeemed immediately. They ask for card details including the CVV and OTP to process the redemption. Banks never call customers to redeem reward points over the phone. Reward points can only be redeemed through official banking apps, net banking, or by contacting the bank's official helpline. Never share card details on call.",
+    "source": "RBI Sachet Portal"
+  },
+  {
+    "title": "RBI Alert: SIM Swap Fraud",
+    "fraud_type": "OTP_FRAUD",
+    "content": "SIM swap fraud involves fraudsters getting a duplicate SIM card of the victim's mobile number from the telecom operator. Once they have the SIM, they receive all OTPs and can access the victim's bank accounts. Warning signs include: your phone suddenly losing network signal, receiving messages about SIM card changes you did not request. If you lose network signal unexpectedly, contact your telecom operator immediately and block all banking transactions.",
+    "source": "RBI Sachet Portal"
+  }
+]

@@ -1,0 +1,182 @@
+[
+  {
+    "fraud_type": "FAKE_KYC",
+    "pattern": "Your [Bank] account KYC has expired. Update immediately or account will be blocked.",
+    "description": "Fake KYC expiry message impersonating banks. Creates urgency to click malicious links.",
+    "red_flags": ["Urgency language (immediately, within 24 hours)", "Threat of account blocking", "Link to non-bank domain", "Generic greeting (Dear customer)"],
+    "examples": [
+      "Dear customer your SBI account KYC has expired update immediately at http://sbi-kyc.xyz or your account will be blocked within 24 hours",
+      "Your PNB KYC is pending click http://pnb-update.in to complete verification or account will be suspended",
+      "HDFC Bank KYC Alert: Your account will be deactivated in 48 hours. Complete eKYC now at http://hdfc-ekyc.com",
+      "Axis Bank Notice: KYC verification required. Your account access will be restricted. Update at http://axis-verify.tk"
+    ]
+  },
+  {
+    "fraud_type": "FAKE_KYC",
+    "pattern": "TRAI has decided to disconnect your mobile number due to illegal activity.",
+    "description": "Fake TRAI (Telecom Regulatory Authority of India) automated call or message threatening mobile disconnection.",
+    "red_flags": ["TRAI does not call individuals", "Threat of disconnection", "Press 1 to speak to officer", "Demand for Aadhaar/PAN details"],
+    "examples": [
+      "TRAI has decided to disconnect your mobile number within 2 hours due to illegal activity press 1 to speak to officer",
+      "Your mobile number is being used for illegal purposes TRAI will disconnect within 24 hours call this number to avoid disconnection",
+      "This is an automated message from TRAI your SIM card has been linked to fraud activities press 1 for verification",
+      "Department of Telecom alert your number will be disconnected in 4 hours due to non-compliance verify your identity now"
+    ]
+  },
+  {
+    "fraud_type": "UPI_MANIPULATION",
+    "pattern": "You have received a payment request. Accept to receive money in your account.",
+    "description": "Fake UPI collect request disguised as incoming payment. Victim approves thinking they will receive money but actually pays money.",
+    "red_flags": ["Collect request disguised as payment", "Unknown sender", "No need to enter PIN to receive money", "Often from OLX/Quikr buyers"],
+    "examples": [
+      "You have received a payment of Rs 5000 from UNKNOWN accept to receive money in your bank account",
+      "Hi I am the buyer from OLX sending you advance payment of Rs 10000 please accept the UPI request",
+      "Congratulations you have received cashback of Rs 500 from PhonePe accept the collect request to claim",
+      "Your refund of Rs 2000 is ready to be processed please approve the UPI collect request to receive"
+    ]
+  },
+  {
+    "fraud_type": "UPI_MANIPULATION",
+    "pattern": "Scan this QR code to receive your refund/cashback/prize money.",
+    "description": "QR code scam where scanning leads to payment deduction instead of receiving money.",
+    "red_flags": ["QR codes are for paying not receiving", "Promise of refund via QR", "Unknown sender", "Urgency to scan immediately"],
+    "examples": [
+      "Scan this QR code to receive your Amazon refund of Rs 1500 directly to your bank account",
+      "Your cashback of Rs 2000 is ready scan QR to claim before it expires today",
+      "Olx buyer here scan this QR code and enter your UPI PIN to receive payment of Rs 8000",
+      "Government subsidy of Rs 3000 credited scan QR code to transfer to your bank account"
+    ]
+  },
+  {
+    "fraud_type": "PHISHING",
+    "pattern": "Click this link to verify/update/claim your [service] account.",
+    "description": "Phishing links disguised as legitimate service notifications. URLs contain misspelled brand names or suspicious TLDs.",
+    "red_flags": ["Suspicious URL domain (.tk, .xyz, .ml)", "Misspelled brand name in URL", "HTTP instead of HTTPS", "Urgent action required"],
+    "examples": [
+      "Your Flipkart order has been cancelled click http://flipkart-refund.tk to claim refund",
+      "Amazon Prime membership expiring click http://amazn-renew.xyz to avoid losing benefits",
+      "Your Google account has been compromised secure it now at http://google-secure.ml",
+      "Netflix billing failed update payment at http://netflix-payment.in to continue watching"
+    ]
+  },
+  {
+    "fraud_type": "PHISHING",
+    "pattern": "Your electricity/gas/water connection will be disconnected. Pay immediately.",
+    "description": "Fake utility disconnection threats with payment links. Targets fear of essential service loss.",
+    "red_flags": ["Threat of immediate disconnection", "Payment via suspicious link", "Urgency (2 hours, today)", "No mention of consumer number"],
+    "examples": [
+      "URGENT your electricity connection will be disconnected in 2 hours pay Rs 500 now at this link to avoid disconnection",
+      "Your BSES bill is overdue pay immediately at http://bses-pay.in or supply will be cut today",
+      "Gas connection alert pending payment of Rs 1200 pay now at http://indane-pay.com to avoid disconnection",
+      "Water supply will be stopped tomorrow due to non-payment clear dues at http://jal-board-pay.xyz"
+    ]
+  },
+  {
+    "fraud_type": "OTP_FRAUD",
+    "pattern": "Share your OTP to complete verification/claim prize/process refund.",
+    "description": "Social engineering to extract OTP for unauthorized transactions.",
+    "red_flags": ["Asking for OTP sharing", "OTP should never be shared with anyone", "Caller claims to be bank official", "Claims verification is required"],
+    "examples": [
+      "IRCTC has selected your number for free ticket share your OTP to claim booking",
+      "This is SBI customer care we need your OTP to verify suspicious transaction on your account",
+      "Your Amazon order refund requires OTP verification please share the OTP sent to your number",
+      "To process your insurance claim of Rs 50000 please share the OTP we just sent to your phone"
+    ]
+  },
+  {
+    "fraud_type": "CARD_SCAM",
+    "pattern": "Your credit/debit card has been blocked/compromised. Share details to reactivate.",
+    "description": "Fake card blocking alerts to steal card details including CVV and expiry date.",
+    "red_flags": ["Asking for full card number", "Requesting CVV or expiry", "Threat of permanent blocking", "Call from unknown number claiming to be bank"],
+    "examples": [
+      "SBI Alert your debit card 4XXX has been blocked due to suspicious activity call 1800XXXXXX to reactivate immediately",
+      "Your HDFC credit card has been compromised share your card number and CVV to block unauthorized transactions",
+      "ICICI bank your card ending 5678 has been suspended verify by sharing complete card details and OTP",
+      "Your credit card application is approved share your PAN Aadhaar and existing card details to process delivery"
+    ]
+  },
+  {
+    "fraud_type": "INVESTMENT_SCAM",
+    "pattern": "Invest today and earn guaranteed returns of X%. Join our WhatsApp/Telegram group.",
+    "description": "Fake investment schemes promising unrealistic returns. Often promoted via WhatsApp and Telegram groups.",
+    "red_flags": ["Guaranteed returns (no investment guarantees returns)", "Unrealistic percentage (50-500%)", "WhatsApp/Telegram group promotion", "No SEBI registration mentioned"],
+    "examples": [
+      "Invest Rs 5000 today and earn Rs 50000 guaranteed within 7 days join our WhatsApp group for daily stock tips",
+      "FREE IPO alert invest in XYZ Tech launching tomorrow guaranteed 200% returns transfer money to this UPI",
+      "Earn Rs 1 lakh monthly from crypto trading join our premium Telegram channel invest minimum Rs 10000",
+      "Government-backed investment scheme earn 15% monthly returns zero risk register now limited slots available"
+    ]
+  },
+  {
+    "fraud_type": "INVESTMENT_SCAM",
+    "pattern": "Congratulations! You have won a lottery/lucky draw/prize. Click to claim.",
+    "description": "Fake lottery and prize notifications designed to extract personal and financial details.",
+    "red_flags": ["Unsolicited prize notification", "Request for processing fee", "You cannot win a lottery you never entered", "Suspicious link to claim"],
+    "examples": [
+      "Congratulations you have won Rs 50 lakh in Amazon Lucky Draw click here to claim http://amazon-prize.tk",
+      "KBC lottery winner your number selected for Rs 25 lakh prize call this number to collect your winnings",
+      "Jio Lucky Draw you won an iPhone 16 and Rs 5 lakh pay Rs 999 processing fee to claim your prize",
+      "WhatsApp lottery you have been selected as winner of Rs 1 crore forward your Aadhaar and PAN to claim"
+    ]
+  },
+  {
+    "fraud_type": "FAKE_KYC",
+    "pattern": "Your Aadhaar/PAN has been suspended due to suspicious activity.",
+    "description": "Fake government document suspension notices to steal personal identity details.",
+    "red_flags": ["Aadhaar/PAN cannot be suspended via SMS", "Link to non-government domain", "Request for personal documents", "Urgency language"],
+    "examples": [
+      "Your Aadhaar card has been suspended due to unusual activity visit http://aadhaar-reactivate.com to resolve",
+      "PAN card linked to suspicious transactions verify at http://incometax-verify.in or face legal action",
+      "Your Aadhaar and PAN must be linked immediately or your bank account will be frozen click http://link-aadhaar.xyz",
+      "UIDAI alert your Aadhaar biometrics need updating visit nearest center or update online at http://aadhaar-update.tk"
+    ]
+  },
+  {
+    "fraud_type": "OTP_FRAUD",
+    "pattern": "Your son/daughter/relative has been arrested. Transfer money immediately.",
+    "description": "Emergency scam calls claiming a family member is in trouble and needs immediate money.",
+    "red_flags": ["Emotional manipulation", "Demand for immediate money transfer", "Caller claims to be police/officer", "Prevents you from contacting the relative directly"],
+    "examples": [
+      "Your son has been arrested by cyber crime cell transfer Rs 25000 to release him immediately call this number",
+      "Your daughter has been involved in an accident she is in hospital transfer Rs 50000 for emergency treatment",
+      "Police custody alert your relative found with drugs pay Rs 1 lakh bail amount to this UPI immediately",
+      "Your family member detained at airport for smuggling pay fine of Rs 75000 to customs officer UPI ID"
+    ]
+  },
+  {
+    "fraud_type": "PHISHING",
+    "pattern": "Your income tax refund is pending. Click to process.",
+    "description": "Fake income tax refund notifications with phishing links to steal banking credentials.",
+    "red_flags": ["IT department uses official portal only", "Refund links via SMS are always fake", "Request for bank account details", "Suspicious domain"],
+    "examples": [
+      "Income Tax Department your refund of Rs 15000 is pending click http://incometax-refund.in to process instantly",
+      "ITR refund approved Rs 24500 credited to your account update bank details at http://it-refund.xyz to receive",
+      "Your income tax penalty of Rs 5000 is due pay immediately at http://it-penalty.com to avoid legal notice",
+      "Dear taxpayer your assessment year 2025-26 refund ready verify PAN at http://pan-verify-it.in to process"
+    ]
+  },
+  {
+    "fraud_type": "CARD_SCAM",
+    "pattern": "Pre-approved loan/credit card offer with instant approval.",
+    "description": "Fake pre-approved loan or credit card offers to collect personal and financial documents.",
+    "red_flags": ["Unsolicited offer from unknown number", "Asks for Aadhaar/PAN upfront", "Processing fee required before approval", "No official bank communication"],
+    "examples": [
+      "Congratulations your CIBIL score qualifies you for pre-approved loan of Rs 10 lakh at 0% interest click http://loan-offer.xyz",
+      "HDFC pre-approved credit card with Rs 5 lakh limit share Aadhaar and PAN to process home delivery",
+      "Instant personal loan Rs 3 lakh no documents needed just pay Rs 2000 processing fee at this UPI ID",
+      "Your salary account qualifies for special loan at 2% interest apply now share your last 3 months bank statement"
+    ]
+  },
+  {
+    "fraud_type": "UPI_MANIPULATION",
+    "pattern": "FASTag recharge failed. Pay immediately or vehicle will be blacklisted.",
+    "description": "Fake FASTag and vehicle-related payment scams targeting vehicle owners.",
+    "red_flags": ["Threat of vehicle blacklisting", "Payment via suspicious link", "FASTag managed through official apps only", "SMS from unknown number"],
+    "examples": [
+      "FASTag recharge failed your vehicle toll account will be blacklisted tomorrow click http://fastag-pay.in to recharge",
+      "Your vehicle insurance expired pay Rs 500 renewal at http://vehicle-insure.xyz to avoid challan",
+      "Traffic challan of Rs 2000 issued for your vehicle pay online at http://echallan-pay.com to avoid court hearing",
+      "Your driving license renewal pending pay fee at http://dl-renew.in or license will be cancelled"
+    ]
+  }
+]

@@ -1,0 +1,36 @@
+# VerifPay - AI-Powered Financial Fraud & Scam Detection
+# Core
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+
+# ML
+scikit-learn
+pandas
+numpy
+joblib
+
+# LLM - Groq (Llama 3 + Whisper)
+groq
+
+# RAG
+langchain
+langchain-community
+chromadb
+sentence-transformers
+
+# Telegram Bot
+python-telegram-bot
+
+# Database
+psycopg2-binary
+sqlalchemy
+
+# URL Checking
+requests
+aiohttp
+
+# Utilities
+python-multipart
+httpx
