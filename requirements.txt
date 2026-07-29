@@ -17,6 +17,7 @@ groq
 # RAG
 langchain
 langchain-community
+langchain-text-splitters
 chromadb
 sentence-transformers
 
@@ -31,6 +32,13 @@ sqlalchemy
 requests
 aiohttp
 
+# Security & Rate Limiting
+slowapi
+
 # Utilities
 python-multipart
 httpx
+
+# Testing
+pytest
+pytest-asyncio

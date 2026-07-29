@@ -42,10 +42,6 @@ class AnalyseRequest(BaseModel):
     url: Optional[str] = Field(None, description="Optional URL to check against phishing databases")
 
 
-class VoiceRequest(BaseModel):
-    """Metadata for POST /voice (audio file sent as form data)."""
-    language: Optional[str] = Field("hi", description="Language hint for transcription (hi=Hindi, en=English)")
-
 
 # ─── Response Models ────────────────────────────────────────────
 
