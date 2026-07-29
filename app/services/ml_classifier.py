@@ -7,6 +7,7 @@ Returns structured result with label, confidence, and individual scores.
 """
 
 import logging
+import threading
 from pathlib import Path
 from collections import Counter
 from typing import Optional
@@ -36,36 +37,41 @@ class MLClassifier:
         self.models: dict = {}
         self.vectorizer = None
         self._loaded = False
+        self._lock = threading.Lock()
 
     def load(self) -> bool:
-        """Load all trained models and the TF-IDF vectorizer."""
-        models_dir = settings.TRAINED_MODELS_DIR
+        """Load all trained models and the TF-IDF vectorizer (thread-safe)."""
+        with self._lock:
+            if self._loaded:
+                return True
 
-        # Load vectorizer
-        vectorizer_path = models_dir / "tfidf_vectorizer.pkl"
-        if not vectorizer_path.exists():
-            logger.error(f"Vectorizer not found at {vectorizer_path}")
-            return False
+            models_dir = settings.TRAINED_MODELS_DIR
 
-        self.vectorizer = joblib.load(vectorizer_path)
-        logger.info(f"Loaded TF-IDF vectorizer from {vectorizer_path}")
+            # Load vectorizer
+            vectorizer_path = models_dir / "tfidf_vectorizer.pkl"
+            if not vectorizer_path.exists():
+                logger.error(f"Vectorizer not found at {vectorizer_path}")
+                return False
 
-        # Load each model
-        for name in MODEL_NAMES:
-            model_path = models_dir / f"{name}.pkl"
-            if model_path.exists():
-                self.models[name] = joblib.load(model_path)
-                logger.info(f"Loaded model: {name}")
-            else:
-                logger.warning(f"Model not found: {model_path}")
+            self.vectorizer = joblib.load(vectorizer_path)
+            logger.info(f"Loaded TF-IDF vectorizer from {vectorizer_path}")
 
-        if not self.models:
-            logger.error("No models loaded!")
-            return False
+            # Load each model
+            for name in MODEL_NAMES:
+                model_path = models_dir / f"{name}.pkl"
+                if model_path.exists():
+                    self.models[name] = joblib.load(model_path)
+                    logger.info(f"Loaded model: {name}")
+                else:
+                    logger.warning(f"Model not found: {model_path}")
 
-        self._loaded = True
-        logger.info(f"ML Classifier ready: {len(self.models)} models loaded")
-        return True
+            if not self.models:
+                logger.error("No models loaded!")
+                return False
+
+            self._loaded = True
+            logger.info(f"ML Classifier ready: {len(self.models)} models loaded")
+            return True
 
     def classify(self, text: str) -> MLClassificationResult:
         """
@@ -115,20 +121,18 @@ class MLClassifier:
         vote_counts = Counter(votes)
         majority_label = vote_counts.most_common(1)[0][0]
 
-        # Calculate ensemble confidence
-        # Average probability weighted by vote agreement
-        avg_prob = np.mean(list(probabilities.values()))
-        vote_agreement = vote_counts.most_common(1)[0][1] / len(votes)
-        confidence = avg_prob * vote_agreement
+        # Calculate ensemble confidence using average fraud probability
+        avg_fraud_prob = np.mean(list(probabilities.values()))
 
-        # Determine verdict
+        # Determine verdict and confidence
         if majority_label == 1:
             verdict = VerdictLabel.SUSPICIOUS
-            confidence = max(confidence, 0.5)  # Suspicious should be at least 50%
+            # Confidence = how confident we are it's fraud
+            confidence = max(avg_fraud_prob, 0.5)
         else:
             verdict = VerdictLabel.SAFE
-            confidence = 1.0 - confidence  # Invert for "safe confidence"
-            confidence = max(confidence, 0.5)
+            # Confidence = how confident we are it's safe (inverse of fraud prob)
+            confidence = max(1.0 - avg_fraud_prob, 0.5)
 
         # Build individual scores dict
         individual_scores = {
@@ -151,3 +155,4 @@ class MLClassifier:
 
 # Global singleton — loaded once and reused across requests
 ml_classifier = MLClassifier()
+
