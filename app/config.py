@@ -39,6 +39,10 @@ class Settings:
     # Frontend URL for CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
+    # API Security
+    VERIFPAY_API_KEY: str = os.getenv("VERIFPAY_API_KEY", "")
+    RATE_LIMIT: str = "30/minute"
+
     # Paths
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     DATA_DIR: Path = BASE_DIR / "app" / "data"

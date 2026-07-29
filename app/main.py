@@ -19,6 +19,7 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.routers import health, analyse, voice, telegram_webhook
+from app.middleware import APIKeyMiddleware, limiter
 
 # Configure logging
 logging.basicConfig(
@@ -99,9 +100,15 @@ app.add_middleware(
         "http://localhost:3000",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
 )
+
+# API key authentication (disabled if VERIFPAY_API_KEY is empty)
+app.add_middleware(APIKeyMiddleware)
+
+# Rate limiting
+app.state.limiter = limiter
 
 # Include routers
 app.include_router(health.router)
