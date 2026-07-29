@@ -36,6 +36,25 @@ SUSPICIOUS_TLDS = {
 # Timeout for all URL checks
 URL_CHECK_TIMEOUT = 5  # seconds
 
+# ─── Shared aiohttp session management ─────────────────────────
+_session: aiohttp.ClientSession | None = None
+
+
+async def get_session() -> aiohttp.ClientSession:
+    """Get or create the shared aiohttp session."""
+    global _session
+    if _session is None or _session.closed:
+        _session = aiohttp.ClientSession()
+    return _session
+
+
+async def close_session():
+    """Close the shared aiohttp session (call on app shutdown)."""
+    global _session
+    if _session and not _session.closed:
+        await _session.close()
+        _session = None
+
 
 def extract_urls(text: str) -> list[str]:
     """Extract all URLs from text using regex."""
@@ -127,6 +146,8 @@ async def check_google_safe_browsing(url: str, session: aiohttp.ClientSession) -
                 "threatEntries": [{"url": url}],
             },
         }
+        # NOTE: Google Safe Browsing v4 API requires the key as a URL query parameter.
+        # There is no header-based alternative. This means the key may appear in proxy logs.
         api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
         timeout = aiohttp.ClientTimeout(total=URL_CHECK_TIMEOUT)
 
@@ -182,7 +203,9 @@ async def check_suspicious_tld(url: str) -> URLCheckResult:
                              "amazon", "flipkart", "google", "netflix", "whatsapp",
                              "aadhaar", "incometax", "rbi", "npci", "fastag", "irctc"]
         for brand in suspicious_brands:
-            if brand in domain and not domain.endswith((".com", ".in", ".co.in", ".org", ".gov.in")):
+            # Flag if brand name appears in a domain with a non-official TLD
+            official_tlds = (".com", ".in", ".co.in", ".org", ".gov.in", ".net.in", ".org.in", ".ac.in")
+            if brand in domain and not domain.endswith(official_tlds):
                 return URLCheckResult(
                     url=url,
                     is_phishing=True,
@@ -208,14 +231,14 @@ async def check_url(url: str) -> URLCheckResult:
 
     Priority: PhishTank > Google Safe Browsing > TLD Heuristic
     """
-    async with aiohttp.ClientSession() as session:
-        # Run all checks in parallel
-        results = await asyncio.gather(
-            check_phishtank(url, session),
-            check_google_safe_browsing(url, session),
-            check_suspicious_tld(url),
-            return_exceptions=True,
-        )
+    session = await get_session()
+    # Run all checks in parallel
+    results = await asyncio.gather(
+        check_phishtank(url, session),
+        check_google_safe_browsing(url, session),
+        check_suspicious_tld(url),
+        return_exceptions=True,
+    )
 
     # Filter out exceptions and None results
     valid_results = [r for r in results if isinstance(r, URLCheckResult)]

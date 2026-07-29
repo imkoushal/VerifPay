@@ -68,6 +68,10 @@ async def lifespan(app: FastAPI):
     yield
 
     # ── Shutdown ───────────────────────────────────────────────
+    # Close shared aiohttp session
+    from app.services.url_checker import close_session
+    await close_session()
+
     if bot_app:
         try:
             if polling_task:
