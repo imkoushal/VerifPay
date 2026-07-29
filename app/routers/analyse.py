@@ -97,7 +97,7 @@ async def analyse_text(request: AnalyseRequest):
             for r in url_results
         ] if url_results else None
 
-        explanation = fraud_explainer.explain(
+        explanation = await fraud_explainer.explain(
             text=text,
             ml_verdict=ml_verdict,
             ml_confidence=ml_confidence,

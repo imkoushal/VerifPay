@@ -78,7 +78,7 @@ async def analyse_voice(
 
     # ── Step 1: Transcribe with Groq Whisper ───────────────────
     try:
-        transcribed_text = transcription_service.transcribe(
+        transcribed_text = await transcription_service.transcribe(
             audio_file=audio_bytes,
             filename=file.filename or "audio.wav",
             language=language or "hi",

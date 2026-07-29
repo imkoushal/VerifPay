@@ -7,6 +7,7 @@ and returns structured JSON with fraud type, explanation, red flags,
 and recommended action.
 """
 
+import asyncio
 import json
 import logging
 from typing import Optional
@@ -71,7 +72,34 @@ class FraudExplainer:
             self._client = Groq(api_key=settings.GROQ_API_KEY)
         return self._client
 
-    def explain(
+    async def explain(
+        self,
+        text: str,
+        ml_verdict: str = "unknown",
+        ml_confidence: float = 0.0,
+        retrieved_patterns: list[dict] = None,
+        url_results: list[dict] = None,
+    ) -> FraudExplanation:
+        """
+        Generate a fraud explanation using Groq Llama 3.
+        Runs the synchronous Groq SDK call in a thread to avoid blocking the event loop.
+
+        Args:
+            text: Original suspicious message text
+            ml_verdict: ML classifier verdict (safe/suspicious)
+            ml_confidence: ML classifier confidence score
+            retrieved_patterns: RAG-retrieved similar fraud patterns
+            url_results: URL checking results (if any URLs found)
+
+        Returns:
+            FraudExplanation with fraud type, explanation, red flags, and action
+        """
+        return await asyncio.to_thread(
+            self._explain_sync, text, ml_verdict, ml_confidence,
+            retrieved_patterns, url_results,
+        )
+
+    def _explain_sync(
         self,
         text: str,
         ml_verdict: str = "unknown",

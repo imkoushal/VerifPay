@@ -184,7 +184,7 @@ async def _run_analysis(text: str) -> AnalyseResponse:
         ml_verdict = ml_result.label.value if ml_result else "unknown"
         ml_confidence = ml_result.confidence if ml_result else 0.0
         url_dicts = [{"url": r.url, "is_phishing": r.is_phishing, "source": r.source, "threat_type": r.threat_type} for r in url_results] if url_results else None
-        explanation = fraud_explainer.explain(
+        explanation = await fraud_explainer.explain(
             text=text,
             ml_verdict=ml_verdict,
             ml_confidence=ml_confidence,
@@ -287,7 +287,7 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         filename = f"voice.{ext}"
 
         # Transcribe
-        transcribed_text = transcription_service.transcribe(
+        transcribed_text = await transcription_service.transcribe(
             audio_file=bytes(audio_bytes),
             filename=filename,
             language="hi",  # Default to Hindi

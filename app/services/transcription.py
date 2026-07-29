@@ -5,6 +5,7 @@ Sends audio files to Groq Whisper API for transcription.
 Supports Hindi, English, and Hinglish voice recordings.
 """
 
+import asyncio
 import logging
 from typing import Optional
 
@@ -29,7 +30,7 @@ class TranscriptionService:
             self._client = Groq(api_key=settings.GROQ_API_KEY)
         return self._client
 
-    def transcribe(
+    async def transcribe(
         self,
         audio_file,
         filename: str = "audio.wav",
@@ -37,6 +38,7 @@ class TranscriptionService:
     ) -> str:
         """
         Transcribe audio using Groq Whisper API.
+        Runs the synchronous Groq SDK call in a thread to avoid blocking the event loop.
 
         Args:
             audio_file: File-like object or bytes of the audio
@@ -46,6 +48,17 @@ class TranscriptionService:
         Returns:
             Transcribed text string
         """
+        return await asyncio.to_thread(
+            self._transcribe_sync, audio_file, filename, language,
+        )
+
+    def _transcribe_sync(
+        self,
+        audio_file,
+        filename: str = "audio.wav",
+        language: str = "hi",
+    ) -> str:
+        """Synchronous transcription — called via asyncio.to_thread()."""
         try:
             client = self._get_client()
 
