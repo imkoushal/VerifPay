@@ -4,14 +4,14 @@ VerifPay — Telegram Bot Service
 Handles all Telegram bot interactions:
     - /start: Welcome message with usage instructions
     - /help: Detailed help with examples
-    - Text messages: Forward to /analyse pipeline, return formatted verdict
+    - Text messages: Forward to shared analysis pipeline, return formatted verdict
     - Voice notes: Download audio, transcribe via Groq Whisper, analyse
     - Multi-turn context: Stores last 3 messages per chat for follow-ups
 """
 
 import io
 import logging
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from typing import Optional
 
 from telegram import Update, Bot
@@ -24,18 +24,36 @@ from telegram.ext import (
 )
 
 from app.config import settings
-from app.models.schemas import AnalyseRequest, AnalyseResponse, VerdictLabel, InputType
-from app.services.ml_classifier import ml_classifier
-from app.services.rag_retriever import rag_retriever
-from app.services.fraud_explainer import fraud_explainer
-from app.services.url_checker import extract_urls, check_urls
+from app.models.schemas import AnalyseResponse, VerdictLabel, InputType
+from app.services.analysis_pipeline import run_analysis
 from app.services.transcription import transcription_service
 
 logger = logging.getLogger(__name__)
 
-# ─── Multi-turn Context Store ──────────────────────────────────
+# ─── Multi-turn Context Store (bounded LRU) ────────────────────
 # Stores last 3 messages per chat_id for follow-up context
-_chat_context: dict[int, deque] = defaultdict(lambda: deque(maxlen=3))
+# Bounded to MAX_CONTEXT_CHATS to prevent unbounded memory growth
+MAX_CONTEXT_CHATS = 10_000
+
+
+class BoundedContextStore:
+    """LRU-bounded chat context store."""
+
+    def __init__(self, max_chats: int = MAX_CONTEXT_CHATS):
+        self._store: OrderedDict[int, deque] = OrderedDict()
+        self._max_chats = max_chats
+
+    def get(self, chat_id: int) -> deque:
+        if chat_id not in self._store:
+            if len(self._store) >= self._max_chats:
+                self._store.popitem(last=False)  # evict oldest
+            self._store[chat_id] = deque(maxlen=3)
+        else:
+            self._store.move_to_end(chat_id)  # refresh LRU
+        return self._store[chat_id]
+
+
+_chat_context = BoundedContextStore()
 
 
 # ─── Message Formatting ───────────────────────────────────────
@@ -153,50 +171,9 @@ def _format_verdict(result: AnalyseResponse, input_type: str = "text") -> str:
     return "\n".join(lines)
 
 
-async def _run_analysis(text: str) -> AnalyseResponse:
-    """Run the full analysis pipeline (same as /analyse endpoint)."""
-    # URL extraction + checking
-    url_results = []
-    try:
-        urls = extract_urls(text)
-        if urls:
-            url_results = await check_urls(urls)
-    except Exception as e:
-        logger.error(f"URL check failed in bot: {e}")
-
-    # ML classification
-    ml_result = None
-    try:
-        ml_result = ml_classifier.classify(text)
-    except Exception as e:
-        logger.error(f"ML classification failed in bot: {e}")
-
-    # RAG retrieval
-    retrieved_patterns = []
-    try:
-        retrieved_patterns = rag_retriever.retrieve_fraud_patterns(text, top_k=5)
-    except Exception as e:
-        logger.error(f"RAG retrieval failed in bot: {e}")
-
-    # LLM explanation
-    explanation = None
-    try:
-        ml_verdict = ml_result.label.value if ml_result else "unknown"
-        ml_confidence = ml_result.confidence if ml_result else 0.0
-        url_dicts = [{"url": r.url, "is_phishing": r.is_phishing, "source": r.source, "threat_type": r.threat_type} for r in url_results] if url_results else None
-        explanation = await fraud_explainer.explain(
-            text=text,
-            ml_verdict=ml_verdict,
-            ml_confidence=ml_confidence,
-            retrieved_patterns=retrieved_patterns,
-            url_results=url_dicts,
-        )
-    except Exception as e:
-        logger.error(f"LLM explanation failed in bot: {e}")
-
-    # Build response (same logic as analyse router)
-    from app.routers.analyse import _build_response
-    return _build_response(ml_result, explanation, url_results)
+async def _run_bot_analysis(text: str) -> AnalyseResponse:
+    """Run the shared analysis pipeline."""
+    return await run_analysis(text)
 
 
 # ─── Bot Handlers ──────────────────────────────────────────────
@@ -225,10 +202,10 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Bot text from chat_id={chat_id}: {text[:80]}...")
 
     # Store in context for follow-ups
-    _chat_context[chat_id].append({"role": "user", "text": text})
+    _chat_context.get(chat_id).append({"role": "user", "text": text})
 
     # Check if this is a follow-up question
-    if _is_followup(text) and len(_chat_context[chat_id]) > 1:
+    if _is_followup(text) and len(_chat_context.get(chat_id)) > 1:
         await _handle_followup(update, text, chat_id)
         return
 
@@ -236,10 +213,10 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.chat.send_action("typing")
 
     try:
-        result = await _run_analysis(text)
+        result = await _run_bot_analysis(text)
 
         # Store result in context
-        _chat_context[chat_id].append({
+        _chat_context.get(chat_id).append({
             "role": "bot",
             "verdict": result.verdict.value,
             "fraud_type": result.fraud_type.value,
@@ -305,11 +282,11 @@ async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         # Analyse the transcribed text
-        result = await _run_analysis(transcribed_text)
+        result = await _run_bot_analysis(transcribed_text)
 
         # Store in context
-        _chat_context[chat_id].append({"role": "user", "text": f"[Voice] {transcribed_text}"})
-        _chat_context[chat_id].append({
+        _chat_context.get(chat_id).append({"role": "user", "text": f"[Voice] {transcribed_text}"})
+        _chat_context.get(chat_id).append({
             "role": "bot",
             "verdict": result.verdict.value,
             "fraud_type": result.fraud_type.value,
@@ -338,20 +315,18 @@ def _is_followup(text: str) -> bool:
         "is this common",
         "is this type",
         "tell me more",
-        "what is",
-        "explain",
+        "explain more",
         "how can i",
         "where to report",
-        "rbi",
         "cyber crime",
         "police",
-        "?",  # Questions are likely follow-ups
     ]
     text_lower = text.lower()
-    # Short messages with question marks are likely follow-ups
-    if "?" in text and len(text) < 100:
+    # Short question-style messages (< 50 chars) with a question mark are likely follow-ups
+    if "?" in text and len(text) < 50:
         return True
-    return any(indicator in text_lower for indicator in followup_indicators[:10])
+    # Require at least one explicit follow-up phrase
+    return any(indicator in text_lower for indicator in followup_indicators)
 
 
 async def _handle_followup(update: Update, text: str, chat_id: int):
@@ -359,7 +334,7 @@ async def _handle_followup(update: Update, text: str, chat_id: int):
     await update.message.chat.send_action("typing")
 
     # Get previous context
-    prev_messages = list(_chat_context[chat_id])
+    prev_messages = list(_chat_context.get(chat_id))
     last_verdict = None
     for msg in reversed(prev_messages):
         if msg.get("role") == "bot" and "verdict" in msg:
