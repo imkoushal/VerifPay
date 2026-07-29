@@ -107,7 +107,7 @@ class FraudExplainer:
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.1,  # Low temperature for consistent, factual output
-                max_tokens=500,
+                max_tokens=settings.GROQ_MAX_TOKENS,
                 response_format={"type": "json_object"},
             )
 

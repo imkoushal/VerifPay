@@ -28,7 +28,7 @@ class RAGRetriever:
             from chromadb.utils import embedding_functions
 
             sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-                model_name="all-MiniLM-L6-v2"
+                model_name=settings.EMBEDDING_MODEL_NAME
             )
 
             self._client = chromadb.PersistentClient(path=settings.CHROMA_PERSIST_DIR)

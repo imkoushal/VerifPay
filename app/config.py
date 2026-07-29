@@ -18,6 +18,7 @@ class Settings:
     GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     GROQ_LLM_MODEL: str = "llama-3.3-70b-versatile"
     GROQ_WHISPER_MODEL: str = "whisper-large-v3"
+    GROQ_MAX_TOKENS: int = 800
 
     # Telegram Bot
     TELEGRAM_BOT_TOKEN: str = os.getenv("TELEGRAM_BOT_TOKEN", "")
@@ -31,6 +32,9 @@ class Settings:
 
     # ChromaDB
     CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
+
+    # Embedding Model
+    EMBEDDING_MODEL_NAME: str = "all-MiniLM-L6-v2"
 
     # Frontend URL for CORS
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")

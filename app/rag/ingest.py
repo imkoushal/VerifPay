@@ -182,7 +182,7 @@ def ingest_to_chroma(persist_dir: str = None):
 
     # 3. Set up ChromaDB with sentence-transformers embeddings
     sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2"
+        model_name=settings.EMBEDDING_MODEL_NAME
     )
 
     client = chromadb.PersistentClient(path=persist_dir)
