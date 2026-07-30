@@ -23,6 +23,13 @@ app/data/trained_models/*.pkl
 # ChromaDB
 chroma_db/
 
+# Frontend
+node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/dev.log
+
 # IDE
 .vscode/
 .idea/

@@ -40,6 +40,22 @@ uvicorn app.main:app --reload
 # http://localhost:8000/docs
 ```
 
+### Frontend
+
+```bash
+cd frontend
+npm install
+
+# Point the app at your backend
+copy .env.example .env   # then set VITE_API_URL (default http://localhost:8000)
+
+npm run dev      # http://localhost:5173
+npm run build    # production bundle in frontend/dist
+```
+
+> The backend already allows `http://localhost:5173` via CORS. For any other
+> origin, set `FRONTEND_URL` in the backend `.env`.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
