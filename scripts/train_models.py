@@ -22,8 +22,13 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
+# Windows consoles default to cp1252, which cannot encode the emoji used below.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+from sklearn.base import clone
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
@@ -99,7 +104,7 @@ def load_dataset(csv_path: str) -> pd.DataFrame:
 
     # Clean data
     df = df.dropna(subset=["text", "label"])
-    df["text"] = df["text"].astype(str).str.strip()
+    df["text"] = df["text"].astype(str).str.strip().str.lower()  # lowercase for consistency
     df["label"] = df["label"].astype(int)
     df = df[df["text"].str.len() > 0]
 
@@ -167,6 +172,27 @@ def train_all_models(X_train, y_train, X_test, y_test):
     return results
 
 
+def cross_validate_models(X, y):
+    """Run 5-fold stratified cross-validation for all models."""
+    print(f"\n{'=' * 60}")
+    print("  5-Fold Stratified Cross-Validation")
+    print(f"{'=' * 60}")
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    cv_results = {}
+
+    for name, model in MODELS.items():
+        # Clone so cross-validation never reuses the fitted estimator from training
+        scores = cross_val_score(clone(model), X, y, cv=cv, scoring="f1_weighted", n_jobs=-1)
+        cv_results[name] = {
+            "mean_f1": scores.mean(),
+            "std_f1": scores.std(),
+        }
+        print(f"  {name:<25} F1: {scores.mean():.4f} (+/- {scores.std():.4f})")
+
+    return cv_results
+
+
 def save_models(results: dict, vectorizer: TfidfVectorizer):
     """Save all trained models and the vectorizer as .pkl files."""
     TRAINED_MODELS_DIR.mkdir(parents=True, exist_ok=True)
@@ -213,13 +239,17 @@ def main():
     # Train all models
     results = train_all_models(X_train, y_train, X_test, y_test)
 
+    # Cross-validation (more reliable metrics)
+    cv_results = cross_validate_models(X, y)
+
     # Summary table
-    print(f"\n{'=' * 60}")
-    print(f"  {'Model':<25} {'Accuracy':>10} {'F1':>10} {'AUC':>10}")
-    print(f"{'─' * 60}")
+    print(f"\n{'=' * 70}")
+    print(f"  {'Model':<25} {'Accuracy':>10} {'F1':>10} {'AUC':>10} {'CV-F1':>10}")
+    print(f"{'─' * 70}")
     for name, data in results.items():
-        print(f"  {name:<25} {data['accuracy']:>10.4f} {data['f1_score']:>10.4f} {data['auc_roc']:>10.4f}")
-    print(f"{'=' * 60}")
+        cv_f1 = cv_results[name]['mean_f1']
+        print(f"  {name:<25} {data['accuracy']:>10.4f} {data['f1_score']:>10.4f} {data['auc_roc']:>10.4f} {cv_f1:>10.4f}")
+    print(f"{'=' * 70}")
 
     # Best model
     best = max(results.items(), key=lambda x: x[1]["f1_score"])
